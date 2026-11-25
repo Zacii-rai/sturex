@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Sturex — Studio Objects &amp; Hardware{% endblock %}</title>
+    <meta name="description" content="Minimalist studio hardware &amp; objects storefront with integrated owner dashboard." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ['Outfit', 'system-ui', 'sans-serif'],
+              sans: ['DM Sans', 'system-ui', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+          },
+        },
+      };
+      (function () {
+        try {
+          var t = localStorage.getItem('sturex_theme');
+          if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      .tabular-nums { font-variant-numeric: tabular-nums; }
+      @media print {
+        .no-print { display: none !important; }
+        .print-only { display: block !important; }
+      }
+    </style>
+    {% block head_extra %}{% endblock %}
+  </head>
+  <body class="bg-[#F8F8F6] text-[#141413] dark:bg-[#0E0E0F] dark:text-[#F4F4F2] antialiased min-h-screen flex flex-col font-sans transition-colors duration-200">
+    {% block content %}{% endblock %}
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" aria-live="polite" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <script>
+      window.SturexUI = {
+        toggleTheme: function () {
+          var isDark = document.documentElement.classList.toggle('dark');
+          try { localStorage.setItem('sturex_theme', isDark ? 'dark' : 'light'); } catch (e) {}
+          document.dispatchEvent(new CustomEvent('sturex:theme', { detail: { dark: isDark } }));
+        },
+        escapeHtml: function (str) {
+          return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+        },
+        formatMoney: function (n) {
+          return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        },
+        toast: function (message, variant) {
+          var container = document.getElementById('toast-container');
+          if (!container) return;
+          var el = document.createElement('div');
+          el.className = 'pointer-events-auto rounded-xl border border-[#E4E4E0] dark:border-[#27272A] bg-white dark:bg-[#171719] px-4 py-3 shadow-lg text-sm flex items-center justify-between gap-3';
+          var color = variant === 'error' ? 'text-[#DC2626]' : variant === 'success' ? 'text-[#16A34A]' : 'text-[#2563EB]';
+          el.innerHTML = '<span class="' + color + ' font-medium">' + window.SturexUI.escapeHtml(message) + '</span>';
+          container.appendChild(el);
+          setTimeout(function () { el.remove(); }, 3800);
+        }
+      };
+    </script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

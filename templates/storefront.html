@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Top Bar Contract -->
+<header class="sticky top-0 z-30 border-b border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6]/90 dark:bg-[#0E0E0F]/90 backdrop-blur-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-8">
+    <a href="/" class="font-display text-xl font-bold tracking-tight whitespace-nowrap shrink-0">Sturex</a>
+    <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-[#63635E] dark:text-[#A1A1AA]">
+      <a href="/" class="hover:text-[#141413] dark:hover:text-white whitespace-nowrap shrink-0">Home</a>
+      <a href="#catalog" class="hover:text-[#141413] dark:hover:text-white whitespace-nowrap shrink-0">Catalog</a>
+      <button type="button" onclick="openTrackerModal()" class="hover:text-[#141413] dark:hover:text-white whitespace-nowrap shrink-0">Track Order</button>
+      <a href="/admin" class="hover:text-[#141413] dark:hover:text-white whitespace-nowrap shrink-0">Owner Studio</a>
+    </nav>
+    <div class="flex items-center gap-3 shrink-0">
+      <button type="button" onclick="SturexUI.toggleTheme()" aria-label="Toggle theme" class="px-2.5 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] text-xs font-medium">Theme</button>
+      <button type="button" onclick="openCartDrawer()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-medium whitespace-nowrap shrink-0">
+        <span>Cart</span>
+        <span id="header-cart-count" class="font-mono tabular-nums text-xs">(0)</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="flex-1">
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-8 pt-8 pb-14 sm:pt-12 sm:pb-20">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+      <div class="lg:col-span-5 flex flex-col justify-between bg-white dark:bg-[#171719] border border-[#E4E4E0] dark:border-[#27272A] rounded-2xl p-8 sm:p-10">
+        <div>
+          <p class="text-xs font-medium text-[#63635E] dark:text-[#A1A1AA] mb-4">Autumn / Studio Edition · Precision Everyday Objects</p>
+          <h1 class="font-display font-semibold tracking-tight leading-[1.08]" style="font-size: clamp(2.25rem, 3.8vw, 3.4rem); text-wrap: balance;">
+            Tactile hardware for focused workspaces.
+          </h1>
+          <p class="mt-5 text-base leading-relaxed text-[#63635E] dark:text-[#A1A1AA] max-w-md">
+            Machined aluminum, stoneware ceramics, and vegetable-tanned leather designed to age with your daily craft.
+          </p>
+        </div>
+        <div class="mt-8 pt-6 border-t border-[#E4E4E0] dark:border-[#27272A] flex items-center justify-between gap-4">
+          <a href="#catalog" class="px-6 py-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-medium whitespace-nowrap shrink-0">Explore Collection</a>
+          <span class="text-xs text-[#63635E] dark:text-[#A1A1AA] font-mono tabular-nums">Free shipping $150+</span>
+        </div>
+      </div>
+      <div class="lg:col-span-7 rounded-2xl overflow-hidden border border-[#E4E4E0] dark:border-[#27272A] bg-[#EFEFED] dark:bg-[#171719] min-h-[300px]">
+        <img src="/src/assets/images/sturex_hero_studio_1795599004896.jpg" alt="Sturex studio workspace collection" class="w-full h-full object-cover" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalog Section -->
+  <section id="catalog" class="max-w-7xl mx-auto px-4 sm:px-8 pb-20">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+      <div>
+        <h2 class="font-display text-2xl font-semibold tracking-tight">Complete Catalog</h2>
+        <p class="text-sm text-[#63635E] dark:text-[#A1A1AA] mt-1">Search, filter by category, or sort by price.</p>
+      </div>
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <input id="catalog-search" type="search" placeholder="Search objects or SKU..." class="w-full sm:w-64 px-3.5 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-white dark:bg-[#171719] text-sm" />
+        <select id="catalog-sort" class="px-3.5 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-white dark:bg-[#171719] text-sm">
+          <option value="featured">Sort: Featured</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="category-tabs" class="flex items-center gap-1.5 p-1 bg-[#EFEFED] dark:bg-[#171719] border border-[#E4E4E0] dark:border-[#27272A] rounded-xl overflow-x-auto mb-8 w-fit max-w-full"></div>
+
+    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+  </section>
+</main>
+
+<footer class="border-t border-[#E4E4E0] dark:border-[#27272A] bg-white dark:bg-[#171719]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#63635E] dark:text-[#A1A1AA]">
+    <div><span class="font-display font-semibold text-sm text-[#141413] dark:text-white">Sturex</span> · Studio Objects &amp; Hardware</div>
+    <div class="flex items-center gap-6">
+      <button type="button" onclick="openTrackerModal()">Track Order</button>
+      <a href="/admin">Owner Studio</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Cart & Checkout Drawer -->
+<div id="cart-drawer" class="fixed inset-0 z-50 hidden justify-end">
+  <div class="fixed inset-0 bg-black/45" onclick="closeCartDrawer()"></div>
+  <aside class="relative z-10 w-full max-w-md bg-white dark:bg-[#171719] border-l border-[#E4E4E0] dark:border-[#27272A] h-full flex flex-col">
+    <div class="px-6 py-5 border-b border-[#E4E4E0] dark:border-[#27272A] flex items-center justify-between">
+      <h2 id="drawer-title" class="font-display text-lg font-semibold">Your Cart</h2>
+      <button type="button" onclick="closeCartDrawer()" class="text-sm text-[#63635E]">Close</button>
+    </div>
+    <div id="drawer-body" class="flex-1 overflow-y-auto px-6 py-5"></div>
+    <div id="drawer-footer" class="p-6 border-t border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F]"></div>
+  </aside>
+</div>
+
+<!-- Order Tracker Modal -->
+<div id="tracker-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="fixed inset-0 bg-black/50" onclick="closeTrackerModal()"></div>
+  <div class="relative z-10 w-full max-w-md rounded-2xl border border-[#E4E4E0] dark:border-[#27272A] bg-white dark:bg-[#171719] p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-display text-lg font-semibold">Track Order</h2>
+      <button type="button" onclick="closeTrackerModal()" class="text-xs text-[#63635E]">Close</button>
+    </div>
+    <form id="tracker-form" class="space-y-3">
+      <input id="track-number" required placeholder="Order Number (e.g. STX-1042)" class="w-full px-3.5 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm font-mono uppercase" />
+      <input id="track-email" type="email" required placeholder="Order Email" class="w-full px-3.5 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm" />
+      <button type="submit" class="w-full py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium">Check Status</button>
+    </form>
+    <div id="tracker-result" class="mt-4 text-sm"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/storefront.js"></script>
+{% endblock %}

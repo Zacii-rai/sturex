@@ -1,0 +1,6 @@
+{
+  "name": "Sturex",
+  "description": "Minimalist studio hardware & objects e-commerce storefront with an integrated owner operations dashboard, financial ledger, and savings tracker.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

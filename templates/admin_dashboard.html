@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Owner Studio — Sturex{% endblock %}
+{% block head_extra %}
+<meta name="csrf-token" content="{{ csrf_token }}" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+<div id="invoice-print-area" class="hidden print-only p-8 bg-white text-[#141413]"></div>
+
+<div class="no-print flex min-h-screen">
+  <!-- Sidebar -->
+  <aside class="hidden lg:flex w-60 shrink-0 flex-col justify-between border-r border-[#E4E4E0] dark:border-[#27272A] bg-white dark:bg-[#171719] p-5 sticky top-0 h-screen">
+    <div>
+      <div class="px-2 pb-5 border-b border-[#E4E4E0] dark:border-[#27272A]">
+        <span class="font-display text-xl font-bold tracking-tight">Sturex</span>
+        <p class="text-xs text-[#63635E] dark:text-[#A1A1AA] truncate mt-0.5">{{ owner_email }}</p>
+      </div>
+      <nav id="admin-nav" class="mt-5 space-y-1">
+        <button type="button" data-tab="overview" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium bg-[#2563EB] text-white">Overview</button>
+        <button type="button" data-tab="orders" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#63635E] dark:text-[#A1A1AA]">Orders</button>
+        <button type="button" data-tab="products" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#63635E] dark:text-[#A1A1AA]">Products</button>
+        <button type="button" data-tab="ledger" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#63635E] dark:text-[#A1A1AA]">Money Ledger</button>
+        <button type="button" data-tab="savings" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#63635E] dark:text-[#A1A1AA]">Savings</button>
+      </nav>
+    </div>
+
+    <div class="space-y-2 border-t border-[#E4E4E0] dark:border-[#27272A] pt-4 text-sm">
+      <a href="/" class="block px-3 py-2 text-[#63635E] dark:text-[#A1A1AA] hover:text-[#141413] dark:hover:text-white">&larr; View Storefront</a>
+      <button type="button" onclick="SturexUI.toggleTheme()" class="w-full text-left px-3 py-2 text-[#63635E] dark:text-[#A1A1AA]">Toggle Theme</button>
+      <form method="POST" action="/admin/logout">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <button type="submit" class="w-full text-left px-3 py-2 text-[#DC2626]">Sign Out</button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- Main Workspace -->
+  <div class="flex-1 min-w-0 flex flex-col">
+    <header class="h-16 px-4 sm:px-8 border-b border-[#E4E4E0] dark:border-[#27272A] bg-white dark:bg-[#171719] flex items-center justify-between gap-4 sticky top-0 z-20">
+      <div class="flex items-center gap-3">
+        <select id="mobile-tab-select" class="lg:hidden px-3 py-1.5 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm">
+          <option value="overview">Overview</option>
+          <option value="orders">Orders</option>
+          <option value="products">Products</option>
+          <option value="ledger">Money Ledger</option>
+          <option value="savings">Savings</option>
+        </select>
+        <h1 id="admin-page-title" class="font-display font-semibold text-base">Overview</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="openProductModal()" class="px-4 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-medium">+ Add Product</button>
+      </div>
+    </header>
+
+    <main id="admin-workspace" class="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-8"></main>
+  </div>
+</div>
+
+<!-- Order Detail Slide-Over -->
+<div id="order-drawer" class="no-print fixed inset-0 z-50 hidden justify-end">
+  <div class="fixed inset-0 bg-black/45" onclick="closeOrderDrawer()"></div>
+  <aside class="relative z-10 w-full max-w-lg bg-white dark:bg-[#171719] border-l border-[#E4E4E0] dark:border-[#27272A] h-full flex flex-col">
+    <div class="px-6 py-5 border-b border-[#E4E4E0] dark:border-[#27272A] flex items-center justify-between">
+      <h2 id="order-drawer-title" class="font-mono font-semibold text-lg"></h2>
+      <button type="button" onclick="closeOrderDrawer()" class="text-xs text-[#63635E]">Close</button>
+    </div>
+    <div id="order-drawer-body" class="flex-1 overflow-y-auto p-6 space-y-5"></div>
+  </aside>
+</div>
+
+<!-- Product Modal -->
+<div id="product-modal" class="no-print fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="fixed inset-0 bg-black/50" onclick="closeProductModal()"></div>
+  <div class="relative z-10 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-[#171719] border border-[#E4E4E0] dark:border-[#27272A] p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 id="product-modal-title" class="font-display text-lg font-semibold">Add Product</h2>
+      <button type="button" onclick="closeProductModal()" class="text-xs text-[#63635E]">Close</button>
+    </div>
+    <form id="product-form" class="space-y-3">
+      <input type="hidden" id="pf-id" />
+      <div class="grid grid-cols-2 gap-3">
+        <input id="pf-name" required placeholder="Product Name" class="px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm" />
+        <input id="pf-sku" required placeholder="SKU (e.g. STX-01)" class="px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm font-mono uppercase" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <select id="pf-cat" class="px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm"></select>
+        <input id="pf-stock" type="number" min="0" required placeholder="Stock" class="px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm font-mono" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <input id="pf-price" type="number" step="0.01" min="0.01" required placeholder="Price ($)" class="px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm font-mono" />
+        <input id="pf-cost" type="number" step="0.01" min="0" required placeholder="Cost Price ($)" class="px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm font-mono" />
+      </div>
+      <textarea id="pf-desc" rows="3" required placeholder="Description" class="w-full px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm"></textarea>
+      <div class="flex gap-2">
+        <input id="pf-img" required placeholder="Image URL or upload" class="flex-1 px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6] dark:bg-[#0E0E0F] text-sm" />
+        <label class="px-3 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] text-xs font-medium cursor-pointer">
+          Upload
+          <input id="pf-file" type="file" accept="image/*" class="hidden" />
+        </label>
+      </div>
+      <label class="flex items-center gap-2 text-xs">
+        <input id="pf-featured" type="checkbox" />
+        <span>Feature on homepage</span>
+      </label>
+      <button type="submit" class="w-full py-2.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium">Save Product</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/admin.js"></script>
+{% endblock %}

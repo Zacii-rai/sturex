@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — Sturex{% endblock %}
+{% block content %}
+<header class="sticky top-0 z-30 border-b border-[#E4E4E0] dark:border-[#27272A] bg-[#F8F8F6]/90 dark:bg-[#0E0E0F]/90 backdrop-blur-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-8">
+    <a href="/" class="font-display text-xl font-bold tracking-tight whitespace-nowrap shrink-0">Sturex</a>
+    <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-[#63635E] dark:text-[#A1A1AA]">
+      <a href="/" class="hover:text-[#141413] dark:hover:text-white">Home</a>
+      <a href="/#catalog" class="hover:text-[#141413] dark:hover:text-white">Catalog</a>
+      <a href="/admin" class="hover:text-[#141413] dark:hover:text-white">Owner Studio</a>
+    </nav>
+    <div class="flex items-center gap-3 shrink-0">
+      <button type="button" onclick="SturexUI.toggleTheme()" class="px-2.5 py-2 rounded-lg border border-[#E4E4E0] dark:border-[#27272A] text-xs font-medium">Theme</button>
+      <a href="/" class="px-4 py-2 rounded-lg bg-[#2563EB] text-white text-sm font-medium">Back to Store</a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex-1">
+  <a href="/" class="text-sm text-[#63635E] dark:text-[#A1A1AA] hover:text-[#141413] dark:hover:text-white mb-8 inline-block">&larr; Back to Catalog</a>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+    <div class="lg:col-span-7 rounded-2xl overflow-hidden border border-[#E4E4E0] dark:border-[#27272A] bg-white dark:bg-[#171719] aspect-[4/3]">
+      <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-full object-cover" />
+    </div>
+    <div class="lg:col-span-5 bg-white dark:bg-[#171719] border border-[#E4E4E0] dark:border-[#27272A] rounded-2xl p-8 space-y-6">
+      <div class="text-xs text-[#63635E] dark:text-[#A1A1AA]">{{ product.category_name }} · <span class="font-mono">{{ product.sku }}</span></div>
+      <div>
+        <h1 class="font-display text-3xl font-semibold">{{ product.name }}</h1>
+        <p class="mt-3 font-mono tabular-nums text-2xl font-semibold">${{ '%.2f'|format(product.price) }}</p>
+      </div>
+      <div class="text-sm font-medium {% if product.stock > 5 %}text-[#16A34A]{% elif product.stock > 0 %}text-[#D97706]{% else %}text-[#DC2626]{% endif %}">
+        {% if product.stock > 5 %}In Stock · {{ product.stock }} units available{% elif product.stock > 0 %}Low Stock · Only {{ product.stock }} left{% else %}Out of Stock{% endif %}
+      </div>
+      <p class="text-sm leading-relaxed text-[#63635E] dark:text-[#A1A1AA] border-t border-[#E4E4E0] dark:border-[#27272A] pt-5">{{ product.description }}</p>
+      <button type="button" id="pdp-add-btn" {% if product.stock < 1 %}disabled{% endif %} class="w-full py-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-40 text-white text-sm font-semibold">
+        {% if product.stock > 0 %}Add to Cart{% else %}Out of Stock{% endif %}
+      </button>
+    </div>
+  </div>
+</main>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById('pdp-add-btn')?.addEventListener('click', function () {
+    var product = {{ product|tojson }};
+    var cart = [];
+    try { cart = JSON.parse(localStorage.getItem('sturex_cart_v1') || '[]'); } catch (e) {}
+    var existing = cart.find(function (i) { return i.product.id === product.id; });
+    if (existing) {
+      existing.quantity = Math.min(product.stock, existing.quantity + 1);
+    } else {
+      cart.push({ product: product, quantity: 1 });
+    }
+    localStorage.setItem('sturex_cart_v1', JSON.stringify(cart));
+    SturexUI.toast('Added ' + product.name + ' to cart', 'success');
+  });
+</script>
+{% endblock %}
